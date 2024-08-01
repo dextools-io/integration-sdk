@@ -1,0 +1,448 @@
+openapi: 3.0.3
+info:
+  title: DEXTools adapter
+  description: |-
+    This documentation is aim to define the interface required by DEXTools application in order
+    to integrate data of exchanges in a unified way.
+    
+    The goal of this API is speeding up the integration of new blockchains into DEXTools by providing
+    the developers of the exchanges with the structure of the information DEXTools can understand.
+
+  termsOfService: https://info.dextools.io/legal-notice/
+  contact:
+    name: DEXTools contact
+    url: https://info.dextools.io/#contact
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.1
+externalDocs:
+  description: Find out more about OpenAPI
+  url: https://www.openapis.org/
+servers:
+  - url: 'http://example.exchange.com/dextools'
+tags:
+  - name: core
+    description: List of core endpoints to implement by the exchanges
+
+paths:
+  /latest-block:
+    get:
+      tags:
+        - core
+      summary: Latest block
+      description: |-
+        Retrieves details of the latest block processed in the blockchain.
+        
+        **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other
+        kind of subdivision in the blockchain, We need this endpoint returns the root block number.
+
+        This endpoint is used to limit the range of events requested during the process of blocks in real time.
+
+        It's mandatory that this endpoint returns a block only when all events of that block have been processed
+        and are available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the platform.
+
+      parameters:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfBlock'
+              example:
+                block:
+                  blockNumber: 3262737
+                  blockTimestamp: 1722317170
+  /block:
+    get:
+      tags:
+        - core
+      summary: Block by number
+      description: |-
+        Retrieves details of a specific block
+
+        **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other
+        kind of subdivision in the blockchain, we need this endpoint to handle the root block number.
+
+      parameters:
+        - name: number
+          description: Number of the requested block
+          in: query
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+          example: 3262733
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfBlock'
+              example:
+                block:
+                  blockNumber: 3262737
+                  blockTimestamp: 1722317170
+  /asset:
+    get:
+      tags:
+        - core
+      summary: Asset by id
+      description: Retrieves details of a given asset (aka token) by its address
+      parameters:
+        - name: id
+          in: query
+          description: Address of the target asset
+          schema:
+            type: string
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfAsset'
+              example:
+                asset:
+                  id: lzvjb-wyaaa-aaaam-qarua-cai
+                  name: BOX DIP-20
+                  symbol: BOX
+                  totalSupply: '1008423.949810'
+                  circulatingSupply: '1008423.949810'
+  /pair:
+    get:
+      tags:
+        - core
+      summary: Pair by id
+      description: Retrieves details of a given pair (aka pool) by its address
+      parameters:
+        - name: id
+          in: query
+          description: Address of the target pair
+          schema:
+            type: string
+          example: qi26q-6aaaa-aaaap-qapeq-cai:utozz-siaaa-aaaam-qaaxq-cai
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfPair'
+              example:
+                pair:
+                  id: qi26q-6aaaa-aaaap-qapeq-cai:utozz-siaaa-aaaam-qaaxq-cai
+                  asset0Id: qi26q-6aaaa-aaaap-qapeq-cai
+                  asset1Id: utozz-siaaa-aaaam-qaaxq-cai
+                  createdAtBlockNumber: 255592
+                  createdAtBlockTimestamp: 1662454363134
+                  createdAtTxnId: '0x3e668'
+                  feeBps: 30
+                  factoryAddress: 3xwpq-ziaaa-aaaah-qcn4a-cai
+
+  /events:
+    get:
+      tags:
+        - core
+      summary: Events
+      description: List of events occured in a range of blocks
+      parameters:
+        - name: fromBlock
+          description: First block (included) of the range requested
+          in: query
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+          example: 39092564
+          required: true
+        - name: toBlock
+          description: Last block (included) of the range requested
+          in: query
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+          example: 39092564
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfEvents'
+              example:
+                events:
+                  - block:
+                      blockNumber: 216775
+                      blockTimestamp: 1654011041
+                    txnId: '0x34ec7'
+                    txnIndex: 216775
+                    eventIndex: 216775
+                    maker: 'gforl-dm7ty-dstlf-enaa5-xd474-k4tlm-xxfoq-fgg6x-omjk4-te3mv-xqe'
+                    pairId: rd6wb-lyaaa-aaaaj-acvla-cai:utozz-siaaa-aaaam-qaaxq-cai
+                    eventType: swap
+                    asset0In: '1.00000000'
+                    asset1Out: '0.00604151'
+                    priceNative: '0.00605969'
+                    reserves:
+                      asset0: '10049651.98319796'
+                      asset1: '60897.81801559'
+                  - block:
+                      blockNumber: 216600
+                      blockTimestamp: 1653906150
+                    txnId: '0x34e18'
+                    txnIndex: 216600
+                    eventIndex: 216600
+                    maker: 'lau2u-xs5m2-gi63l-y7ywo-iipoi-k6bkt-mpq5p-prkns-2iewe-wnoxr-uae'
+                    pairId: aanaa-xaaaa-aaaah-aaeiq-cai:utozz-siaaa-aaaam-qaaxq-cai
+                    eventType: exit
+                    amount0: '19.966298246356'
+                    amount1: '1.19089177'
+                    reserves:
+                      asset0: '828412.583047021879'
+                      asset1: '49410.74804357'
+                  - block:
+                    blockNumber: 216616
+                    blockTimestamp: 1653918697
+                    txnId: '0x34e28'
+                    txnIndex: 216616
+                    eventIndex: 216616
+                    maker: 'lkqmh-5vihe-t5x5j-smuot-vitei-tgfyx-losfh-bbud4-fp2rq-353dj-yqe'
+                    pairId: 'rd6wb-lyaaa-aaaaj-acvla-cai:utozz-siaaa-aaaam-qaaxq-cai'
+                    eventType': 'join'
+                    amount0: '82.49587604'
+                    amount1: '0.49999999'
+                    reserves:
+                      asset0: '49831.30008799'
+                      asset1: '302.02297663'
+
+components:
+  schemas:
+    Block:
+      type: object
+      properties:
+        blockNumber:
+          type: integer
+          format: int64
+          description: Number of the block
+          minimum: 0
+          example: 327637
+        blockTimestamp:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Timestamp (in seconds) the block was confirmed at
+          example: 1722317170
+      required: 
+        - blockNumber
+        - blockTimestamp
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Address of the token
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+        name:
+          type: string
+          description: Name of the token
+          example: BOX DIP-20
+        symbol:
+          type: string
+          description: Symbol of the token
+          example: BOX
+        totalSupply:
+          type: string
+          description: Total supply of the token at current time
+          pattern: '^\d+(?:\.\d+)$'
+          example: '1008423.949810'
+        circulatingSupply:
+          type: string
+          description: Circulating supply of the token at current time
+          pattern: '^\d+(?:\.\d+)$'
+          example: '1008423.949810'
+      required:
+        - id
+        - name
+        - symbol
+        - totalSupply
+        - circulatingSupply
+    Pair:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Address of the pair
+          example: qi26q-6aaaa-aaaap-qapeq-cai:utozz-siaaa-aaaam-qaaxq-cai
+        asset0Id:
+          type: string
+          description: Address of the first token of the pair
+          example: qi26q-6aaaa-aaaap-qapeq-cai
+        asset1Id:
+          type: string
+          description: Address of the second token of the pair
+          example: utozz-siaaa-aaaam-qaaxq-cai
+        createdAtBlockNumber:
+          type: integer
+          format: int64
+          description: Number of block the pair was created at
+          minimum: 0
+          example: 255592
+        createdAtBlockTimestamp:
+          type: integer
+          format: int64
+          description: Timestamp (in seconds) of the block the pair was created at
+          minimum: 0
+          example: 16662454363
+        createdAtTxnId:
+          type: string
+          description: Hash of the transaction the pair was created at
+          example: 0x3e668
+        factoryAddress:
+          type: string
+          description: Address of the smart contract used to create the pair
+          example: 3xwpq-ziaaa-aaaah-qcn4a-cai
+      required:
+        - id
+        - asset0Id
+        - asset1Id
+        - createdAtBlockNumber
+        - createdAtBlockTimestamp
+        - createdAtTxnId
+        - factoryAddress
+    Event:
+      type: object
+      properties:
+        block:
+          $ref: '#/components/schemas/Block'
+        txnId:
+          type: string
+          description: Hash of the transaction the event belongs to
+          example: '0x34ec7'
+        txnIndex:
+          type: integer
+          format: int32
+          description: Index of the transaction the event belongs to
+          minimum: 0
+          example: 216775
+        eventIndex:
+          type: integer
+          format: int32
+          description: Index of the event inside the transaction
+          minimum: 0
+          example: 216775
+        maker:
+          type: string
+          description: Address of the wallet who request the transaction
+          example: 'gforl-dm7ty-dstlf-enaa5-xd474-k4tlm-xxfoq-fgg6x-omjk4-te3mv-xqe'
+        pairId:
+          type: string
+          description: Address of the pair involved in the transaction
+          example: rd6wb-lyaaa-aaaaj-acvla-cai:utozz-siaaa-aaaam-qaaxq-cai
+        eventType:
+          type: string
+          description: Type of event (swap -> Swap, join -> Add liquidity, exit -> Remove liquidity)
+          enum:
+            - swap
+            - join
+            - exit
+        amount0:
+          type: string
+          description: 'Only for joins and exits: Number of tokens of asset0 added to the pool'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '1.00000000'
+        amount1:
+          type: string
+          description: 'Only for joins and exits: Number of tokens of asset1 added to the pool'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '0.00604151'
+        asset0In:
+          type: string
+          description: 'Only for swaps: Number of tokens of asset0 sold'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '1.00000000'
+        asset1Out:
+          type: string
+          description: 'Only for swaps: Number of tokens of asset1 bought'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '0.00604151'
+        asset0Out:
+          type: string
+          description: 'Only for swaps: Number of tokens of asset0 bought'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '1.00000000'
+        asset1In:
+          type: string
+          description: 'Only for swaps: Number of tokens of asset1 sold'
+          pattern: '^\d+(?:\.\d+)$'
+          example: '0.00604151'
+        priceNative:
+          type: string
+          description: Price of the native token at the moment the event was created
+          pattern: '^\d+(?:\.\d+)$'
+          example: '0.00605969'
+        reserves:
+          type: object
+          description: Reserves of each token after the event was executed
+          properties:
+            asset0:
+              type: string
+              description: Reserves of token asset0
+              pattern: '^\d+(?:\.\d+)$'
+              example: '10049651.98319796'
+            asset1:
+              type: string
+              description: Reserves of token asset1
+              pattern: '^\d+(?:\.\d+)$'
+              example: '60897.81801559'
+          required:
+            - asset0
+            - asset1
+      required: 
+        - block
+        - txnId
+        - txnIndex
+        - eventIndex
+        - maker
+        - pairId
+        - eventType
+        - reserves
+
+    ResponseOfBlock:
+      type: object
+      properties:
+        block:
+          $ref: '#/components/schemas/Block'
+      required:
+        - block
+    ResponseOfAsset:
+      type: object
+      properties:
+        asset:
+          $ref: '#/components/schemas/Asset'
+      required: 
+        - asset
+    ResponseOfPair:
+      type: object
+      properties:
+        pair:
+          $ref: '#/components/schemas/Pair'
+      required: 
+        - pair
+    ResponseOfEvents:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      required: 
+        - events
+    
