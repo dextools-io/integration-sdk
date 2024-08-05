@@ -2,11 +2,11 @@
 
 > Version 0.0.1
 
-This documentation is aim to define the interface required by DEXTools application in order
-to integrate data of exchanges in a unified way.
+This documentation is aim to define the interface required by DEXTools application in order to integrate data of
+exchanges in a unified way.
 
-The goal of this API is speeding up the integration of new blockchains into DEXTools by providing
-the developers of the exchanges with the structure of the information DEXTools can understand.
+The goal of this API is speeding up the integration of new blockchains into DEXTools by providing the developers of
+the exchanges with the structure of the information DEXTools can understand.
 
 ## Path Table
 
@@ -30,9 +30,8 @@ the developers of the exchanges with the structure of the information DEXTools c
 | ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) |  |
 | ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) |  |
 | ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) |  |
-| Error | [#/components/schemas/Error](#componentsschemaserror) |  |
+| Issue | [#/components/schemas/Issue](#componentsschemasissue) |  |
 | ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) |  |
-| ErrorBadRequest | [#/components/responses/ErrorBadRequest](#componentsresponseserrorbadrequest) | Bad Request |
 | ErrorNotFound | [#/components/responses/ErrorNotFound](#componentsresponseserrornotfound) | Not Found |
 | ErrorTooManyRequests | [#/components/responses/ErrorTooManyRequests](#componentsresponseserrortoomanyrequests) | Too Many requests |
 | ErrorInternal | [#/components/responses/ErrorInternal](#componentsresponseserrorinternal) | Internal error |
@@ -49,13 +48,14 @@ Latest block
 - Description  
 Retrieves details of the latest block processed in the blockchain.  
   
-**Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other  
-kind of subdivision in the blockchain, We need this endpoint to return the root block number.  
+**Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other kind of subdivision  
+in the blockchain, We need this endpoint to return the root block number.  
   
 This endpoint is used to limit the range of events requested during the process of blocks in real time.  
   
-It's mandatory that this endpoint returns a block only when all events of that block have been processed  
-and are available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the platform.
+It's mandatory that this endpoint returns a block only when all events of that block have been processed and are  
+available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the  
+platform.
 
 #### Responses
 
@@ -74,9 +74,9 @@ and are available at the _events_ endpoint. If not, DEXTools might loose some ev
 }
 ```
 
-- 429 undefined
+- 429 Too may requests
 
-- 500 undefined
+- 500 Internal server error
 
 ***
 
@@ -114,13 +114,27 @@ number: integer
 }
 ```
 
-- 400 undefined
+- 400 Bad request
 
-- 404 undefined
+`application/json`
 
-- 429 undefined
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
 
-- 500 undefined
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
 
 ***
 
@@ -161,13 +175,27 @@ id: string
 }
 ```
 
-- 400 undefined
+- 400 Bad request
 
-- 404 undefined
+`application/json`
 
-- 429 undefined
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
 
-- 500 undefined
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
 
 ***
 
@@ -212,13 +240,27 @@ id?: string
 }
 ```
 
-- 400 undefined
+- 400 Bad request
 
-- 404 undefined
+`application/json`
 
-- 429 undefined
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
 
-- 500 undefined
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
 
 ***
 
@@ -279,7 +321,7 @@ toBlock: integer
     asset0Out?: string
     // Only for swaps: Number of tokens of asset1 sold
     asset1In?: string
-    // Reserves of each token after the event was executed
+    // Only for joins, exists and swaps: Reserves of each token remaining after the event has been executed
     reserves: {
       // Reserves of token asset0
       asset0: string
@@ -290,13 +332,27 @@ toBlock: integer
 }
 ```
 
-- 400 undefined
+- 400 Bad request
 
-- 404 undefined
+`application/json`
 
-- 429 undefined
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
 
-- 500 undefined
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
 
 ## References
 
@@ -383,7 +439,7 @@ toBlock: integer
   asset0Out?: string
   // Only for swaps: Number of tokens of asset1 sold
   asset1In?: string
-  // Reserves of each token after the event was executed
+  // Only for joins, exists and swaps: Reserves of each token remaining after the event has been executed
   reserves: {
     // Reserves of token asset0
     asset0: string
@@ -483,7 +539,7 @@ toBlock: integer
     asset0Out?: string
     // Only for swaps: Number of tokens of asset1 sold
     asset1In?: string
-    // Reserves of each token after the event was executed
+    // Only for joins, exists and swaps: Reserves of each token remaining after the event has been executed
     reserves: {
       // Reserves of token asset0
       asset0: string
@@ -494,12 +550,13 @@ toBlock: integer
 }
 ```
 
-### #/components/schemas/Error
+### #/components/schemas/Issue
 
 ```ts
 {
   code?: string
-  message?: string
+  param?: string
+  message: string
 }
 ```
 
@@ -511,22 +568,8 @@ toBlock: integer
   message: string
   issues: {
     code?: string
-    message?: string
-  }[]
-}
-```
-
-### #/components/responses/ErrorBadRequest
-
-- application/json
-
-```ts
-{
-  code: string
-  message: string
-  issues: {
-    code?: string
-    message?: string
+    param?: string
+    message: string
   }[]
 }
 ```
@@ -541,7 +584,8 @@ toBlock: integer
   message: string
   issues: {
     code?: string
-    message?: string
+    param?: string
+    message: string
   }[]
 }
 ```
@@ -556,7 +600,8 @@ toBlock: integer
   message: string
   issues: {
     code?: string
-    message?: string
+    param?: string
+    message: string
   }[]
 }
 ```
@@ -571,7 +616,8 @@ toBlock: integer
   message: string
   issues: {
     code?: string
-    message?: string
+    param?: string
+    message: string
   }[]
 }
 ```

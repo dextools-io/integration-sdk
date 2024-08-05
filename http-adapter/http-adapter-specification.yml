@@ -2,11 +2,11 @@ openapi: 3.0.3
 info:
   title: DEXTools adapter
   description: |-
-    This documentation is aim to define the interface required by DEXTools application in order
-    to integrate data of exchanges in a unified way.
-    
-    The goal of this API is speeding up the integration of new blockchains into DEXTools by providing
-    the developers of the exchanges with the structure of the information DEXTools can understand.
+    This documentation is aim to define the interface required by DEXTools application in order to integrate data of
+    exchanges in a unified way.
+
+    The goal of this API is speeding up the integration of new blockchains into DEXTools by providing the developers of
+    the exchanges with the structure of the information DEXTools can understand.
 
   termsOfService: https://info.dextools.io/legal-notice/
   contact:
@@ -33,14 +33,15 @@ paths:
       summary: Latest block
       description: |-
         Retrieves details of the latest block processed in the blockchain.
-        
-        **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other
-        kind of subdivision in the blockchain, We need this endpoint to return the root block number.
+
+        **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other kind of subdivision
+        in the blockchain, We need this endpoint to return the root block number.
 
         This endpoint is used to limit the range of events requested during the process of blocks in real time.
 
-        It's mandatory that this endpoint returns a block only when all events of that block have been processed
-        and are available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the platform.
+        It's mandatory that this endpoint returns a block only when all events of that block have been processed and are
+        available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the
+        platform.
 
       responses:
         '200':
@@ -54,8 +55,10 @@ paths:
                   blockNumber: 3262737
                   blockTimestamp: 1722317170
         '429':
+          description: 'Too may requests'
           $ref: '#/components/responses/ErrorTooManyRequests'
         '500':
+          description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
   /block:
     get:
@@ -90,12 +93,26 @@ paths:
                   blockNumber: 3262737
                   blockTimestamp: 1722317170
         '400':
-          $ref: '#/components/responses/ErrorBadRequest'
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Invalid parameters
+                  issues:
+                    - param: number
+                      code: invalid
+                      message: Block number must be an integer value
         '404':
+          description: Not found
           $ref: '#/components/responses/ErrorNotFound'
         '429':
+          description: 'Too may requests'
           $ref: '#/components/responses/ErrorTooManyRequests'
         '500':
+          description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
   /asset:
     get:
@@ -126,12 +143,26 @@ paths:
                   totalSupply: '1008423.949810'
                   circulatingSupply: '1008423.949810'
         '400':
-          $ref: '#/components/responses/ErrorBadRequest'
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Missing parameter
+                  issues:
+                    - param: id
+                      code: required
+                      message: Id parameter is required
         '404':
+          description: 'Not found'
           $ref: '#/components/responses/ErrorNotFound'
         '429':
+          description: 'Too may requests'
           $ref: '#/components/responses/ErrorTooManyRequests'
         '500':
+          description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
   /pair:
     get:
@@ -164,12 +195,26 @@ paths:
                   feeBps: 30
                   factoryAddress: 3xwpq-ziaaa-aaaah-qcn4a-cai
         '400':
-          $ref: '#/components/responses/ErrorBadRequest'
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Missing parameter
+                  issues:
+                    - param: id
+                      code: required
+                      message: Id parameter is required
         '404':
+          description: 'Not found'
           $ref: '#/components/responses/ErrorNotFound'
         '429':
+          description: 'Too may requests'
           $ref: '#/components/responses/ErrorTooManyRequests'
         '500':
+          description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
 
   /events:
@@ -258,12 +303,29 @@ paths:
                       asset0: '49831.30008799'
                       asset1: '302.02297663'
         '400':
-          $ref: '#/components/responses/ErrorBadRequest'
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Invalid parameters
+                  issues:
+                    - param: fromBlock
+                      code: integer
+                      message: fromBlock parameter must be an integer value
+                    - param: toBlock
+                      code: positive
+                      message: toBlock parameter must be a positive value
         '404':
+          description: 'Not found'
           $ref: '#/components/responses/ErrorNotFound'
         '429':
+          description: 'Too may requests'
           $ref: '#/components/responses/ErrorTooManyRequests'
         '500':
+          description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
 
 components:
@@ -283,7 +345,7 @@ components:
           minimum: 0
           description: Timestamp (in seconds) the block was confirmed at
           example: 1722317170
-      required: 
+      required:
         - blockNumber
         - blockTimestamp
     Asset:
@@ -429,7 +491,7 @@ components:
           example: '0.00604151'
         reserves:
           type: object
-          description: Reserves of each token after the event was executed
+          description: 'Only for joins, exists and swaps: Reserves of each token remaining after the event has been executed'
           properties:
             asset0:
               type: string
@@ -444,7 +506,7 @@ components:
           required:
             - asset0
             - asset1
-      required: 
+      required:
         - block
         - txnId
         - txnIndex
@@ -465,14 +527,14 @@ components:
       properties:
         asset:
           $ref: '#/components/schemas/Asset'
-      required: 
+      required:
         - asset
     ResponseOfPair:
       type: object
       properties:
         pair:
           $ref: '#/components/schemas/Pair'
-      required: 
+      required:
         - pair
     ResponseOfEvents:
       type: object
@@ -481,16 +543,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Event'
-      required: 
+      required:
         - events
-  
-    Error:
+
+    Issue:
       type: object
       properties:
         code:
           type: string
+        param:
+          type: string
         message:
           type: string
+      required:
+        - message
 
     ResponseOfError:
       type: object
@@ -502,18 +568,12 @@ components:
         issues:
           type: array
           items:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/Issue'
       required:
         - code
         - message
 
   responses:
-    ErrorBadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ResponseOfError'
     ErrorNotFound:
       description: Not Found
       content:
@@ -541,4 +601,3 @@ components:
           example:
             code: '500'
             message: 'Server was not able to return a response. Try later'
-
