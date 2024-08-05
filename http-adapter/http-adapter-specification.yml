@@ -35,14 +35,13 @@ paths:
         Retrieves details of the latest block processed in the blockchain.
         
         **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other
-        kind of subdivision in the blockchain, We need this endpoint returns the root block number.
+        kind of subdivision in the blockchain, We need this endpoint to return the root block number.
 
         This endpoint is used to limit the range of events requested during the process of blocks in real time.
 
         It's mandatory that this endpoint returns a block only when all events of that block have been processed
         and are available at the _events_ endpoint. If not, DEXTools might loose some events and they won't be available ever in the platform.
 
-      parameters:
       responses:
         '200':
           description: OK
@@ -54,6 +53,10 @@ paths:
                 block:
                   blockNumber: 3262737
                   blockTimestamp: 1722317170
+        '429':
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
   /block:
     get:
       tags:
@@ -86,6 +89,14 @@ paths:
                 block:
                   blockNumber: 3262737
                   blockTimestamp: 1722317170
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
   /asset:
     get:
       tags:
@@ -114,6 +125,14 @@ paths:
                   symbol: BOX
                   totalSupply: '1008423.949810'
                   circulatingSupply: '1008423.949810'
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
   /pair:
     get:
       tags:
@@ -144,6 +163,14 @@ paths:
                   createdAtTxnId: '0x3e668'
                   feeBps: 30
                   factoryAddress: 3xwpq-ziaaa-aaaah-qcn4a-cai
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
 
   /events:
     get:
@@ -180,6 +207,15 @@ paths:
               example:
                 events:
                   - block:
+                      blockNumber: 216773
+                      blockTimestamp: 1654010041
+                    txnId: '0x3a78fd'
+                    txnIndex: 216675
+                    eventIndex: 216675
+                    maker: 'gforl-dm7ty-dstlf-enaa5-xd474-k4tlm-xxfoq-fgg6x-omjk4-te3mv-xqe'
+                    pairId: rd6wb-lyaaa-aaaaj-acvla-cai:utozz-siaaa-aaaam-qaaxq-cai
+                    eventType: creation
+                  - block:
                       blockNumber: 216775
                       blockTimestamp: 1654011041
                     txnId: '0x34ec7'
@@ -190,7 +226,6 @@ paths:
                     eventType: swap
                     asset0In: '1.00000000'
                     asset1Out: '0.00604151'
-                    priceNative: '0.00605969'
                     reserves:
                       asset0: '10049651.98319796'
                       asset1: '60897.81801559'
@@ -222,6 +257,14 @@ paths:
                     reserves:
                       asset0: '49831.30008799'
                       asset1: '302.02297663'
+        '400':
+          $ref: '#/components/responses/ErrorBadRequest'
+        '404':
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          $ref: '#/components/responses/ErrorInternal'
 
 components:
   schemas:
@@ -348,8 +391,9 @@ components:
           example: rd6wb-lyaaa-aaaaj-acvla-cai:utozz-siaaa-aaaam-qaaxq-cai
         eventType:
           type: string
-          description: Type of event (swap -> Swap, join -> Add liquidity, exit -> Remove liquidity)
+          description: Type of event (creation -> Pair created; swap -> Swap; join -> Add liquidity; exit -> Remove liquidity)
           enum:
+            - creation
             - swap
             - join
             - exit
@@ -383,11 +427,6 @@ components:
           description: 'Only for swaps: Number of tokens of asset1 sold'
           pattern: '^\d+(?:\.\d+)$'
           example: '0.00604151'
-        priceNative:
-          type: string
-          description: Price of the native token at the moment the event was created
-          pattern: '^\d+(?:\.\d+)$'
-          example: '0.00605969'
         reserves:
           type: object
           description: Reserves of each token after the event was executed
@@ -413,7 +452,6 @@ components:
         - maker
         - pairId
         - eventType
-        - reserves
 
     ResponseOfBlock:
       type: object
@@ -445,4 +483,62 @@ components:
             $ref: '#/components/schemas/Event'
       required: 
         - events
-    
+  
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    ResponseOfError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      required:
+        - code
+        - message
+
+  responses:
+    ErrorBadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseOfError'
+    ErrorNotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseOfError'
+          example:
+            code: '404'
+            message: 'Block/Asset/Pair not found.'
+    ErrorTooManyRequests:
+      description: Too Many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseOfError'
+          example:
+            code: '429'
+            message: 'Rate limit occured handling request'
+    ErrorInternal:
+      description: Internal error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseOfError'
+          example:
+            code: '500'
+            message: 'Server was not able to return a response. Try later'
+

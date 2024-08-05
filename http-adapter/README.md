@@ -30,6 +30,12 @@ the developers of the exchanges with the structure of the information DEXTools c
 | ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) |  |
 | ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) |  |
 | ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) |  |
+| Error | [#/components/schemas/Error](#componentsschemaserror) |  |
+| ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) |  |
+| ErrorBadRequest | [#/components/responses/ErrorBadRequest](#componentsresponseserrorbadrequest) | Bad Request |
+| ErrorNotFound | [#/components/responses/ErrorNotFound](#componentsresponseserrornotfound) | Not Found |
+| ErrorTooManyRequests | [#/components/responses/ErrorTooManyRequests](#componentsresponseserrortoomanyrequests) | Too Many requests |
+| ErrorInternal | [#/components/responses/ErrorInternal](#componentsresponseserrorinternal) | Internal error |
 
 ## Path Details
 
@@ -44,7 +50,7 @@ Latest block
 Retrieves details of the latest block processed in the blockchain.  
   
 **Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other  
-kind of subdivision in the blockchain, We need this endpoint returns the root block number.  
+kind of subdivision in the blockchain, We need this endpoint to return the root block number.  
   
 This endpoint is used to limit the range of events requested during the process of blocks in real time.  
   
@@ -67,6 +73,10 @@ and are available at the _events_ endpoint. If not, DEXTools might loose some ev
   }
 }
 ```
+
+- 429 undefined
+
+- 500 undefined
 
 ***
 
@@ -103,6 +113,14 @@ number: integer
   }
 }
 ```
+
+- 400 undefined
+
+- 404 undefined
+
+- 429 undefined
+
+- 500 undefined
 
 ***
 
@@ -142,6 +160,14 @@ id: string
   }
 }
 ```
+
+- 400 undefined
+
+- 404 undefined
+
+- 429 undefined
+
+- 500 undefined
 
 ***
 
@@ -185,6 +211,14 @@ id?: string
   }
 }
 ```
+
+- 400 undefined
+
+- 404 undefined
+
+- 429 undefined
+
+- 500 undefined
 
 ***
 
@@ -231,8 +265,8 @@ toBlock: integer
     maker: string
     // Address of the pair involved in the transaction
     pairId: string
-    // Type of event (swap -> Swap, join -> Add liquidity, exit -> Remove liquidity)
-    eventType: enum[swap, join, exit]
+    // Type of event (creation -> Pair created; swap -> Swap; join -> Add liquidity; exit -> Remove liquidity)
+    eventType: enum[creation, swap, join, exit]
     // Only for joins and exits: Number of tokens of asset0 added to the pool
     amount0?: string
     // Only for joins and exits: Number of tokens of asset1 added to the pool
@@ -245,8 +279,6 @@ toBlock: integer
     asset0Out?: string
     // Only for swaps: Number of tokens of asset1 sold
     asset1In?: string
-    // Price of the native token at the moment the event was created
-    priceNative?: string
     // Reserves of each token after the event was executed
     reserves: {
       // Reserves of token asset0
@@ -257,6 +289,14 @@ toBlock: integer
   }[]
 }
 ```
+
+- 400 undefined
+
+- 404 undefined
+
+- 429 undefined
+
+- 500 undefined
 
 ## References
 
@@ -329,8 +369,8 @@ toBlock: integer
   maker: string
   // Address of the pair involved in the transaction
   pairId: string
-  // Type of event (swap -> Swap, join -> Add liquidity, exit -> Remove liquidity)
-  eventType: enum[swap, join, exit]
+  // Type of event (creation -> Pair created; swap -> Swap; join -> Add liquidity; exit -> Remove liquidity)
+  eventType: enum[creation, swap, join, exit]
   // Only for joins and exits: Number of tokens of asset0 added to the pool
   amount0?: string
   // Only for joins and exits: Number of tokens of asset1 added to the pool
@@ -343,8 +383,6 @@ toBlock: integer
   asset0Out?: string
   // Only for swaps: Number of tokens of asset1 sold
   asset1In?: string
-  // Price of the native token at the moment the event was created
-  priceNative?: string
   // Reserves of each token after the event was executed
   reserves: {
     // Reserves of token asset0
@@ -431,8 +469,8 @@ toBlock: integer
     maker: string
     // Address of the pair involved in the transaction
     pairId: string
-    // Type of event (swap -> Swap, join -> Add liquidity, exit -> Remove liquidity)
-    eventType: enum[swap, join, exit]
+    // Type of event (creation -> Pair created; swap -> Swap; join -> Add liquidity; exit -> Remove liquidity)
+    eventType: enum[creation, swap, join, exit]
     // Only for joins and exits: Number of tokens of asset0 added to the pool
     amount0?: string
     // Only for joins and exits: Number of tokens of asset1 added to the pool
@@ -445,8 +483,6 @@ toBlock: integer
     asset0Out?: string
     // Only for swaps: Number of tokens of asset1 sold
     asset1In?: string
-    // Price of the native token at the moment the event was created
-    priceNative?: string
     // Reserves of each token after the event was executed
     reserves: {
       // Reserves of token asset0
@@ -454,6 +490,88 @@ toBlock: integer
       // Reserves of token asset1
       asset1: string
     }
+  }[]
+}
+```
+
+### #/components/schemas/Error
+
+```ts
+{
+  code?: string
+  message?: string
+}
+```
+
+### #/components/schemas/ResponseOfError
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    message?: string
+  }[]
+}
+```
+
+### #/components/responses/ErrorBadRequest
+
+- application/json
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    message?: string
+  }[]
+}
+```
+
+### #/components/responses/ErrorNotFound
+
+- application/json
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    message?: string
+  }[]
+}
+```
+
+### #/components/responses/ErrorTooManyRequests
+
+- application/json
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    message?: string
+  }[]
+}
+```
+
+### #/components/responses/ErrorInternal
+
+- application/json
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    message?: string
   }[]
 }
 ```
