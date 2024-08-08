@@ -13,7 +13,7 @@ the exchanges with the structure of the information DEXTools can understand.
 | Method | Path | Description |
 | --- | --- | --- |
 | GET | [/latest-block](#getlatest-block) | Latest block |
-| GET | [/block](#getblock) | Block by number |
+| GET | [/block](#getblock) | Block by number or timestamp |
 | GET | [/asset](#getasset) | Asset by id |
 | GET | [/pair](#getpair) | Pair by id |
 | GET | [/events](#getevents) | Events |
@@ -48,9 +48,6 @@ Latest block
 - Description  
 Retrieves details of the latest block processed in the blockchain.  
   
-**Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other kind of subdivision  
-in the blockchain, We need this endpoint to return the root block number.  
-  
 This endpoint is used to limit the range of events requested during the process of blocks in real time.  
   
 It's mandatory that this endpoint returns a block only when all events of that block have been processed and are  
@@ -83,18 +80,29 @@ platform.
 ### [GET]/block
 
 - Summary  
-Block by number
+Block by number or timestamp
 
 - Description  
-Retrieves details of a specific block  
+Retrieves details of a specific block using either the number of the block or its timestamp.  
   
-**Note**: In DEXTools we handle unique blocks per blockchain. In case of sharding or any other  
-kind of subdivision in the blockchain, we need this endpoint to handle the root block number.
+For timestamp searching, this endpoint should return the youngest block with the timestamp less than or equal  
+to the requested one.  
+  
+If none of the parameters are requested, this endpoint must return a 400 error.  
+  
+If both parameters are requested, number option takes precedence.  
+  
+**NOTE**: The timestamp option is required only for blockchains with sharding or any other kind of partition,  
+where different partitions handle different block numbers.
 
 #### Parameters(Query)
 
 ```ts
-number: integer
+number?: integer
+```
+
+```ts
+timestamp?: integer
 ```
 
 #### Responses
