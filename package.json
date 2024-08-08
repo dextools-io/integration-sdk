@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "generate-readme:http-adapter": "openapi-to-md http-adapter/http-adapter-specification.yml http-adapter/README.md"
+  },
+  "dependencies": {
+    "openapi-to-md": "^1.0.24"
+  }
+}
