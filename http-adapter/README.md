@@ -1,12 +1,16 @@
-# DEXTools adapter
+# DEX/Blockchain integration API
 
 > Version 0.0.1
 
-This documentation is aim to define the interface required by DEXTools application in order to integrate data of
-exchanges in a unified way.
+HTTP API specification that any blockchain or DEX must provide (via API server) in order to get integrated in DEXTools.
+DEXTools will consume this API to index all trading data. Please contact with DEXTools support for more info.
 
-The goal of this API is speeding up the integration of new blockchains into DEXTools by providing the developers of
-the exchanges with the structure of the information DEXTools can understand.
+For a Blockchain-level integration, multiple DEX data can be provided with one URL (e.g. dextools-api.mychain.com) 
+and the `/exchange` endpoint must be implemented.
+
+Otherwise, for a DEX-level integration, each DEX must provide a separated URL (e.g. dextools-api.one-dex.com, dextools-api.second-dex.com)
+
+DEXTools will consume the API requesting each block as fast as possible and querying additional data to provided endpoints.
 
 ## Path Table
 
@@ -14,7 +18,8 @@ the exchanges with the structure of the information DEXTools can understand.
 | --- | --- | --- |
 | GET | [/latest-block](#getlatest-block) | Latest block |
 | GET | [/block](#getblock) | Block by number or timestamp |
-| GET | [/asset](#getasset) | Asset by id |
+| GET | [/asset](#getasset) | Token by id |
+| GET | [/exchange](#getexchange) | DEX info by factory address or id |
 | GET | [/pair](#getpair) | Pair by id |
 | GET | [/events](#getevents) | Events |
 
@@ -26,8 +31,10 @@ the exchanges with the structure of the information DEXTools can understand.
 | Asset | [#/components/schemas/Asset](#componentsschemasasset) |  |
 | Pair | [#/components/schemas/Pair](#componentsschemaspair) |  |
 | Event | [#/components/schemas/Event](#componentsschemasevent) |  |
+| Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) |  |
 | ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) |  |
 | ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) |  |
+| ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) |  |
 | ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) |  |
 | ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) |  |
 | Issue | [#/components/schemas/Issue](#componentsschemasissue) |  |
@@ -46,7 +53,7 @@ the exchanges with the structure of the information DEXTools can understand.
 Latest block
 
 - Description  
-Retrieves details of the latest block processed in the blockchain.  
+Returns the latest block processed in the blockchain/DEX.  
   
 This endpoint is used to limit the range of events requested during the process of blocks in real time.  
   
@@ -83,7 +90,7 @@ platform.
 Block by number or timestamp
 
 - Description  
-Retrieves details of a specific block using either the number of the block or its timestamp.  
+Returns a specific block using either the number of the block or its timestamp.  
   
 For timestamp searching, this endpoint should return the youngest block with the timestamp less than or equal  
 to the requested one.  
@@ -149,10 +156,10 @@ timestamp?: integer
 ### [GET]/asset
 
 - Summary  
-Asset by id
+Token by id
 
 - Description  
-Retrieves details of a given asset (aka token) by its address
+Returns details of a given token by its address
 
 #### Parameters(Query)
 
@@ -207,13 +214,70 @@ id: string
 
 ***
 
+### [GET]/exchange
+
+- Summary  
+DEX info by factory address or id
+
+- Description  
+Return details of a given DEX by its factory address or alternative id
+
+#### Parameters(Query)
+
+```ts
+id: string
+```
+
+#### Responses
+
+- 200 OK
+
+`application/json`
+
+```ts
+{
+  exchange: {
+    // Address of the factory contract
+    factoryAddress: string
+    // Name of the token
+    name: string
+    // URL of exchange Logo
+    logoURL?: string
+  }
+}
+```
+
+- 400 Bad request
+
+`application/json`
+
+```ts
+{
+  code: string
+  message: string
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
+
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
+
+***
+
 ### [GET]/pair
 
 - Summary  
 Pair by id
 
 - Description  
-Retrieves details of a given pair (aka pool) by its address
+Returns pair details (aka pool) by its address
 
 #### Parameters(Query)
 
@@ -457,6 +521,19 @@ toBlock: integer
 }
 ```
 
+### #/components/schemas/Exchange
+
+```ts
+{
+  // Address of the factory contract
+  factoryAddress: string
+  // Name of the token
+  name: string
+  // URL of exchange Logo
+  logoURL?: string
+}
+```
+
 ### #/components/schemas/ResponseOfBlock
 
 ```ts
@@ -485,6 +562,21 @@ toBlock: integer
     totalSupply: string
     // Circulating supply of the token at current time
     circulatingSupply: string
+  }
+}
+```
+
+### #/components/schemas/ResponseOfExchange
+
+```ts
+{
+  exchange: {
+    // Address of the factory contract
+    factoryAddress: string
+    // Name of the token
+    name: string
+    // URL of exchange Logo
+    logoURL?: string
   }
 }
 ```

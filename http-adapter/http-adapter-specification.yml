@@ -1,12 +1,16 @@
 openapi: 3.0.3
 info:
-  title: DEXTools adapter
+  title: DEX/Blockchain integration API
   description: |-
-    This documentation is aim to define the interface required by DEXTools application in order to integrate data of
-    exchanges in a unified way.
+    HTTP API specification that any blockchain or DEX must provide (via API server) in order to get integrated in DEXTools.
+    DEXTools will consume this API to index all trading data. Please contact with DEXTools support for more info.
 
-    The goal of this API is speeding up the integration of new blockchains into DEXTools by providing the developers of
-    the exchanges with the structure of the information DEXTools can understand.
+    For a Blockchain-level integration, multiple DEX data can be provided with one URL (e.g. dextools-api.mychain.com) 
+    and the `/exchange` endpoint must be implemented.
+
+    Otherwise, for a DEX-level integration, each DEX must provide a separated URL (e.g. dextools-api.one-dex.com, dextools-api.second-dex.com)
+
+    DEXTools will consume the API requesting each block as fast as possible and querying additional data to provided endpoints.
 
   termsOfService: https://info.dextools.io/legal-notice/
   contact:
@@ -32,7 +36,7 @@ paths:
         - core
       summary: Latest block
       description: |-
-        Retrieves details of the latest block processed in the blockchain.
+        Returns the latest block processed in the blockchain/DEX.
 
         This endpoint is used to limit the range of events requested during the process of blocks in real time.
 
@@ -63,7 +67,7 @@ paths:
         - core
       summary: Block by number or timestamp
       description: |-
-        Retrieves details of a specific block using either the number of the block or its timestamp.
+        Returns a specific block using either the number of the block or its timestamp.
 
         For timestamp searching, this endpoint should return the youngest block with the timestamp less than or equal
         to the requested one.
@@ -131,12 +135,12 @@ paths:
     get:
       tags:
         - core
-      summary: Asset by id
-      description: Retrieves details of a given asset (aka token) by its address
+      summary: Token by id
+      description: Returns details of a given token by its address
       parameters:
         - name: id
           in: query
-          description: Address of the target asset
+          description: Address of the target token
           schema:
             type: string
           example: lzvjb-wyaaa-aaaam-qarua-cai
@@ -177,12 +181,65 @@ paths:
         '500':
           description: 'Internal server error'
           $ref: '#/components/responses/ErrorInternal'
+
+  /exchange:
+    get:
+      tags:
+        - core
+      summary: DEX info by factory address or id
+      description: Return details of a given DEX by its factory address or alternative id
+      parameters:
+        - name: id
+          in: query
+          description: Address of the factory address
+          schema:
+            type: string
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfExchange'
+              example:
+                asset:
+                  id: lzvjb-wyaaa-aaaam-qarua-cai
+                  name: BOX DIP-20
+                  symbol: BOX
+                  totalSupply: '1008423.949810'
+                  circulatingSupply: '1008423.949810'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Missing parameter
+                  issues:
+                    - param: id
+                      code: required
+                      message: Id parameter is required
+        '404':
+          description: 'Not found'
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          description: 'Too may requests'
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          description: 'Internal server error'
+          $ref: '#/components/responses/ErrorInternal'
+
+
   /pair:
     get:
       tags:
         - core
       summary: Pair by id
-      description: Retrieves details of a given pair (aka pool) by its address
+      description: Returns pair details (aka pool) by its address
       parameters:
         - name: id
           in: query
@@ -528,6 +585,25 @@ components:
         - pairId
         - eventType
 
+    Exchange:
+      type: object
+      properties:
+        factoryAddress:
+          type: string
+          description: Address of the factory contract
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+        name:
+          type: string
+          description: Name of the token
+          example: Uniswap V99
+        logoURL:
+          type: string
+          description: URL of exchange Logo
+          example: 'https://mydex.com/logo.png'
+      required:
+        - factoryAddress
+        - name
+
     ResponseOfBlock:
       type: object
       properties:
@@ -542,6 +618,13 @@ components:
           $ref: '#/components/schemas/Asset'
       required:
         - asset
+    ResponseOfExchange:
+      type: object
+      properties:
+        exchange:
+          $ref: '#/components/schemas/Exchange'
+      required:
+        - asset        
     ResponseOfPair:
       type: object
       properties:
