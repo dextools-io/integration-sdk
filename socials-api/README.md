@@ -23,28 +23,28 @@ This endpoint is useful to update social info of your token.
 
 ### Body fields
 
-| Field                                    | Type   | Required | Description                                                 |
-|------------------------------------------|--------|----------|-------------------------------------------------------------|
-| `chain`                                  | String | Yes      | Chain.                                                      |
-| `address`                                | String | Yes      | Token to update socials.                                    |
-| `creationTransactionHash`                | String | No       | Creation transaction hash of token creation. (Only **EVM**) |
-| `socials`                                | Object | No       | Object that contains socials to update.                     |
-| `socials.description`                    | String | No       | Description to show in DEXTools.                            |
-| `socials.email`                          | String | No       | Email.                                                      |
-| `socials.logo`                           | String | No       | Logo in BASE 64 or URL, MAX SIZE: 250x250.                  |
-| `socials.banner`                         | String | No       | BANNER in BASE 64 or URL, MAX SIZE: 600X200.                |
-| `socials.twitter`                        | String | No       | X profile URL.                                              |
-| `socials.telegram`                       | String | No       | Telegram channel URL.                                       |
-| `socials.discord`                        | String | No       | Discord channel URL.                                        |
-| `socials.facebook`                       | String | No       | Facebook URL.                                               |
-| `socials.youtube`                        | String | No       | Youtube channel URL.                                        |
-| `socials.instagram`                      | String | No       | Instagram URL.                                              |
-| `socials.reddit`                         | String | No       | Reddit URL.                                                 |
-| `socials.tiktok`                         | String | No       | Tiktok URL.                                                 |
-| `socials.website[]`                      | Array  | No       | Array with website URL.                                     |
-| `socials.repos`                          | Object | No       | Object with repositories info                               |
-| `socials.repos.github[]`                  | Array  | No       | Github URLs.                                                |
-| `socials.repos.bitbucket[]`               | Array  | No       | Bitbucket URLs.                                             |
+| Field                                    | Type   | Required | Description                                                   |
+|------------------------------------------|--------|----------|---------------------------------------------------------------|
+| `chain`                                  | String | Yes      | Chain.                                                        |
+| `address`                                | String | Yes      | Token to update socials.                                      |
+| `creationTransactionHash`                | String | No       | Creation transaction hash of token creation. (Only **EVM**)   |
+| `socials`                                | Object | No       | Object that contains socials to update.                       |
+| `socials.description`                    | String | No       | Description to show in DEXTools.                              |
+| `socials.email`                          | String | No       | Email.                                                        |
+| `socials.logo`                           | String | No       | Logo in BASE 64 or URL, MAX SIZE: 250x250, MAX WEIGHT: 20KB   |
+| `socials.banner`                         | String | No       | BANNER in BASE 64 or URL, MAX SIZE: 600X200. MAX WEIGHT: 200KB|
+| `socials.twitter`                        | String | No       | X profile URL.                                                |
+| `socials.telegram`                       | String | No       | Telegram channel URL.                                         |
+| `socials.discord`                        | String | No       | Discord channel URL.                                          |
+| `socials.facebook`                       | String | No       | Facebook URL.                                                 |
+| `socials.youtube`                        | String | No       | Youtube channel URL.                                          |
+| `socials.instagram`                      | String | No       | Instagram URL.                                                |
+| `socials.reddit`                         | String | No       | Reddit URL.                                                   |
+| `socials.tiktok`                         | String | No       | Tiktok URL.                                                   |
+| `socials.website[]`                      | Array  | No       | Array with website URL.                                       |
+| `socials.repos`                          | Object | No       | Object with repositories info                                 |
+| `socials.repos.github[]`                  | Array  | No       | Github URLs.                                                 |
+| `socials.repos.bitbucket[]`               | Array  | No       | Bitbucket URLs.                                              |
 
 ### Ejemplo de Body de la Petición
 
