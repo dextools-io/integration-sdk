@@ -15,7 +15,7 @@ This endpoint is useful to update social info of your token.
 ### URL
 `/v1/token`
 
-### Método HTTP
+### HTTP Method
 `POST`
 
 ### Headers
@@ -46,7 +46,7 @@ This endpoint is useful to update social info of your token.
 | `socials.repos.github[]`                  | Array  | No       | Github URLs.                                                 |
 | `socials.repos.bitbucket[]`               | Array  | No       | Bitbucket URLs.                                              |
 
-### Ejemplo de Body de la Petición
+### Body example of a request
 
 ```json
 {
@@ -84,3 +84,41 @@ This endpoint is useful to update social info of your token.
 |403 | Missing or invalid authorization header|
 
 
+## GET `/v1/token/:chain/:address`
+
+### Description
+
+This endpoint is useful to check if token has socials info updated or not
+
+### URL
+`/v1/token/:chain/:address`
+
+### Parameters
+| Field                                    | Type   | Required | Description               |
+|------------------------------------------|--------|----------|---------------------------|
+| `chain`                                  | String | Yes      | Chain.                    |
+| `address`                                | String | Yes      | Token to check socials.   |
+
+### HTTP Method
+`GET`
+
+### Example response
+```
+{
+    "statusCode": 200,
+    "data": {
+        "existingSocialsInfo": true
+    }
+}
+```
+
+### Headers
+`X-API-Key: YOUR_API_KEY`
+
+### Responses
+
+| Code | Description                                                                          | 
+|------|--------------------------------------------------------------------------------------|
+| 200  | Returns existingSocialsInfo: true/false depends on if token has the socials updated  |
+| 400  | Bad Request                                                                          |
+| 403  | Missing or invalid authorization header                                              |
