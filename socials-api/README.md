@@ -31,8 +31,8 @@ This endpoint is useful to update social info of your token.
 | `socials`                                | Object | No       | Object that contains socials to update.                       |
 | `socials.description`                    | String | No       | Description to show in DEXTools.                              |
 | `socials.email`                          | String | No       | Email.                                                        |
-| `socials.logo`                           | String | No       | Logo in BASE 64 or URL, MAX SIZE: 250x250, MAX WEIGHT: 20KB   |
-| `socials.banner`                         | String | No       | BANNER in BASE 64 or URL, MAX SIZE: 600X200. MAX WEIGHT: 200KB|
+| `socials.logo`                           | String | No       | Logo in BASE 64 or URL, MAX SIZE: 250x250, MAX WEIGHT: 200KB   |
+| `socials.banner`                         | String | No       | BANNER in BASE 64 or URL, MAX SIZE: 600X200. MAX WEIGHT: 1024KB|
 | `socials.twitter`                        | String | No       | X profile URL.                                                |
 | `socials.telegram`                       | String | No       | Telegram channel URL.                                         |
 | `socials.discord`                        | String | No       | Discord channel URL.                                          |
