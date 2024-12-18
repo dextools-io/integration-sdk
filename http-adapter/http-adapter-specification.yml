@@ -510,7 +510,7 @@ components:
         eventIndex:
           type: integer
           format: int32
-          description: Index of the event inside the transaction
+          description: Index of the event inside the block. This will be used to sort events and must be unique for all events inside a block.
           minimum: 0
           example: 216775
         maker:

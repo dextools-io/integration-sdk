@@ -373,7 +373,7 @@ toBlock: integer
     txnId: string
     // Index of the transaction the event belongs to
     txnIndex: integer
-    // Index of the event inside the transaction
+    // Index of the event inside the block. This will be used to sort events and must be unique for all events inside a block.
     eventIndex: integer
     // Address of the wallet who request the transaction
     maker: string
@@ -491,7 +491,7 @@ toBlock: integer
   txnId: string
   // Index of the transaction the event belongs to
   txnIndex: integer
-  // Index of the event inside the transaction
+  // Index of the event inside the block. This will be used to sort events and must be unique for all events inside a block.
   eventIndex: integer
   // Address of the wallet who request the transaction
   maker: string
@@ -619,7 +619,7 @@ toBlock: integer
     txnId: string
     // Index of the transaction the event belongs to
     txnIndex: integer
-    // Index of the event inside the transaction
+    // Index of the event inside the block. This will be used to sort events and must be unique for all events inside a block.
     eventIndex: integer
     // Address of the wallet who request the transaction
     maker: string
