@@ -27,18 +27,18 @@ DEXTools will consume the API requesting each block as fast as possible and quer
 
 | Name | Path | Description |
 | --- | --- | --- |
-| Block | [#/components/schemas/Block](#componentsschemasblock) |  |
-| Asset | [#/components/schemas/Asset](#componentsschemasasset) |  |
-| Pair | [#/components/schemas/Pair](#componentsschemaspair) |  |
-| Event | [#/components/schemas/Event](#componentsschemasevent) |  |
-| Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) |  |
-| ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) |  |
-| ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) |  |
-| ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) |  |
-| ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) |  |
-| ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) |  |
-| Issue | [#/components/schemas/Issue](#componentsschemasissue) |  |
-| ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) |  |
+| Block | [#/components/schemas/Block](#componentsschemasblock) | Block schema |
+| Asset | [#/components/schemas/Asset](#componentsschemasasset) | Token schema |
+| Pair | [#/components/schemas/Pair](#componentsschemaspair) | Pair schema |
+| Event | [#/components/schemas/Event](#componentsschemasevent) | Event schema |
+| Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) | Exchange schema |
+| ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) | Response of the endpoints that return a single block |
+| ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) | Response of the endpoints that return a single token |
+| ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) | Response of the endpoints that return a single exchange |
+| ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) | Response of the endpoints that return a single pair |
+| ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) | Response of the /events endpoint |
+| Issue | [#/components/schemas/Issue](#componentsschemasissue) | Schema of error details |
+| ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) | Schema of all error responses |
 | ErrorNotFound | [#/components/responses/ErrorNotFound](#componentsresponseserrornotfound) | Not Found |
 | ErrorTooManyRequests | [#/components/responses/ErrorTooManyRequests](#componentsresponseserrortoomanyrequests) | Too Many requests |
 | ErrorInternal | [#/components/responses/ErrorInternal](#componentsresponseserrorinternal) | Internal error |
@@ -68,7 +68,9 @@ platform.
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -119,7 +121,9 @@ timestamp?: integer
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -134,9 +138,11 @@ timestamp?: integer
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -174,7 +180,9 @@ id: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single token
 {
+  // Token schema
   asset: {
     // Address of the token
     id: string
@@ -186,6 +194,8 @@ id: string
     totalSupply: string
     // Circulating supply of the token at current time
     circulatingSupply: string
+    // Total number of holders of the token
+    holdersCount?: integer
   }
 }
 ```
@@ -195,9 +205,11 @@ id: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -235,7 +247,9 @@ id: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single exchange
 {
+  // Exchange schema
   exchange: {
     // Address of the factory contract
     factoryAddress: string
@@ -252,9 +266,11 @@ id: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -292,7 +308,9 @@ id?: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single pair
 {
+  // Pair schema
   pair: {
     // Address of the pair
     id: string
@@ -317,9 +335,11 @@ id?: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -361,8 +381,11 @@ toBlock: integer
 `application/json`
 
 ```ts
+// Response of the /events endpoint
 {
+  // Event schema
   events: {
+    // Block schema
     block: {
       // Number of the block
       blockNumber: integer
@@ -409,9 +432,11 @@ toBlock: integer
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -431,6 +456,7 @@ toBlock: integer
 ### #/components/schemas/Block
 
 ```ts
+// Block schema
 {
   // Number of the block
   blockNumber: integer
@@ -442,6 +468,7 @@ toBlock: integer
 ### #/components/schemas/Asset
 
 ```ts
+// Token schema
 {
   // Address of the token
   id: string
@@ -453,12 +480,15 @@ toBlock: integer
   totalSupply: string
   // Circulating supply of the token at current time
   circulatingSupply: string
+  // Total number of holders of the token
+  holdersCount?: integer
 }
 ```
 
 ### #/components/schemas/Pair
 
 ```ts
+// Pair schema
 {
   // Address of the pair
   id: string
@@ -480,7 +510,9 @@ toBlock: integer
 ### #/components/schemas/Event
 
 ```ts
+// Event schema
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -524,6 +556,7 @@ toBlock: integer
 ### #/components/schemas/Exchange
 
 ```ts
+// Exchange schema
 {
   // Address of the factory contract
   factoryAddress: string
@@ -537,7 +570,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfBlock
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -550,7 +585,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfAsset
 
 ```ts
+// Response of the endpoints that return a single token
 {
+  // Token schema
   asset: {
     // Address of the token
     id: string
@@ -562,6 +599,8 @@ toBlock: integer
     totalSupply: string
     // Circulating supply of the token at current time
     circulatingSupply: string
+    // Total number of holders of the token
+    holdersCount?: integer
   }
 }
 ```
@@ -569,7 +608,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfExchange
 
 ```ts
+// Response of the endpoints that return a single exchange
 {
+  // Exchange schema
   exchange: {
     // Address of the factory contract
     factoryAddress: string
@@ -584,7 +625,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfPair
 
 ```ts
+// Response of the endpoints that return a single pair
 {
+  // Pair schema
   pair: {
     // Address of the pair
     id: string
@@ -607,8 +650,11 @@ toBlock: integer
 ### #/components/schemas/ResponseOfEvents
 
 ```ts
+// Response of the /events endpoint
 {
+  // Event schema
   events: {
+    // Block schema
     block: {
       // Number of the block
       blockNumber: integer
@@ -653,6 +699,7 @@ toBlock: integer
 ### #/components/schemas/Issue
 
 ```ts
+// Schema of error details
 {
   code?: string
   param?: string
@@ -663,9 +710,11 @@ toBlock: integer
 ### #/components/schemas/ResponseOfError
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -679,9 +728,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -695,9 +746,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -711,9 +764,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string

@@ -159,6 +159,7 @@ paths:
                   symbol: BOX
                   totalSupply: '1008423.949810'
                   circulatingSupply: '1008423.949810'
+                  holdersCount: 12235
         '400':
           description: 'Bad request'
           content:
@@ -204,12 +205,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResponseOfExchange'
               example:
-                asset:
-                  id: lzvjb-wyaaa-aaaam-qarua-cai
+                exchange:
+                  factoryAddress: lzvjb-wyaaa-aaaam-qarua-cai
                   name: BOX DIP-20
-                  symbol: BOX
-                  totalSupply: '1008423.949810'
-                  circulatingSupply: '1008423.949810'
+                  logoURL: 'https://mydex.com/logo.png'
         '400':
           description: 'Bad request'
           content:
@@ -402,6 +401,7 @@ components:
   schemas:
     Block:
       type: object
+      description: Block schema
       properties:
         blockNumber:
           type: integer
@@ -420,6 +420,7 @@ components:
         - blockTimestamp
     Asset:
       type: object
+      description: Token schema
       properties:
         id:
           type: string
@@ -443,6 +444,12 @@ components:
           description: Circulating supply of the token at current time
           pattern: '^\d+(?:\.\d+)$'
           example: '1008423.949810'
+        holdersCount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Total number of holders of the token
+          example: 1008423
       required:
         - id
         - name
@@ -451,6 +458,7 @@ components:
         - circulatingSupply
     Pair:
       type: object
+      description: Pair schema
       properties:
         id:
           type: string
@@ -494,6 +502,7 @@ components:
         - factoryAddress
     Event:
       type: object
+      description: Event schema
       properties:
         block:
           $ref: '#/components/schemas/Block'
@@ -587,6 +596,7 @@ components:
 
     Exchange:
       type: object
+      description: Exchange schema
       properties:
         factoryAddress:
           type: string
@@ -606,6 +616,7 @@ components:
 
     ResponseOfBlock:
       type: object
+      description: Response of the endpoints that return a single block
       properties:
         block:
           $ref: '#/components/schemas/Block'
@@ -613,6 +624,7 @@ components:
         - block
     ResponseOfAsset:
       type: object
+      description: Response of the endpoints that return a single token
       properties:
         asset:
           $ref: '#/components/schemas/Asset'
@@ -620,13 +632,15 @@ components:
         - asset
     ResponseOfExchange:
       type: object
+      description: Response of the endpoints that return a single exchange
       properties:
         exchange:
           $ref: '#/components/schemas/Exchange'
       required:
-        - asset        
+        - exchange        
     ResponseOfPair:
       type: object
+      description: Response of the endpoints that return a single pair
       properties:
         pair:
           $ref: '#/components/schemas/Pair'
@@ -634,6 +648,7 @@ components:
         - pair
     ResponseOfEvents:
       type: object
+      description: Response of the /events endpoint
       properties:
         events:
           type: array
@@ -644,6 +659,7 @@ components:
 
     Issue:
       type: object
+      description: Schema of error details
       properties:
         code:
           type: string
@@ -656,6 +672,7 @@ components:
 
     ResponseOfError:
       type: object
+      description: Schema of all error responses
       properties:
         code:
           type: string
