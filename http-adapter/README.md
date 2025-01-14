@@ -19,6 +19,7 @@ DEXTools will consume the API requesting each block as fast as possible and quer
 | GET | [/latest-block](#getlatest-block) | Latest block |
 | GET | [/block](#getblock) | Block by number or timestamp |
 | GET | [/asset](#getasset) | Token by id |
+| GET | [/asset/holders](#getassetholders) | Paginated list of holders of a token by its id |
 | GET | [/exchange](#getexchange) | DEX info by factory address or id |
 | GET | [/pair](#getpair) | Pair by id |
 | GET | [/events](#getevents) | Events |
@@ -29,11 +30,14 @@ DEXTools will consume the API requesting each block as fast as possible and quer
 | --- | --- | --- |
 | Block | [#/components/schemas/Block](#componentsschemasblock) | Block schema |
 | Asset | [#/components/schemas/Asset](#componentsschemasasset) | Token schema |
+| AssetHolders | [#/components/schemas/AssetHolders](#componentsschemasassetholders) | List of token holders schema |
+| AssetHolder | [#/components/schemas/AssetHolder](#componentsschemasassetholder) | Holder of tokens schema |
 | Pair | [#/components/schemas/Pair](#componentsschemaspair) | Pair schema |
 | Event | [#/components/schemas/Event](#componentsschemasevent) | Event schema |
 | Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) | Exchange schema |
 | ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) | Response of the endpoints that return a single block |
 | ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) | Response of the endpoints that return a single token |
+| ResponseOfAssetHolders | [#/components/schemas/ResponseOfAssetHolders](#componentsschemasresponseofassetholders) | Response of the endpoint that return a list of holders of a token |
 | ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) | Response of the endpoints that return a single exchange |
 | ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) | Response of the endpoints that return a single pair |
 | ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) | Response of the /events endpoint |
@@ -185,17 +189,95 @@ id: string
   // Token schema
   asset: {
     // Address of the token
-    id: string
+    id?: string
     // Name of the token
-    name: string
+    name?: string
     // Symbol of the token
-    symbol: string
+    symbol?: string
     // Total supply of the token at current time
-    totalSupply: string
+    totalSupply?: string
     // Circulating supply of the token at current time
-    circulatingSupply: string
+    circulatingSupply?: string
     // Total number of holders of the token
     holdersCount?: integer
+  }
+}
+```
+
+- 400 Bad request
+
+`application/json`
+
+```ts
+// Schema of all error responses
+{
+  code: string
+  message: string
+  // Schema of error details
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
+
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
+
+***
+
+### [GET]/asset/holders
+
+- Summary  
+Paginated list of holders of a token by its id
+
+- Description  
+Returns a list of holders of a given token.  
+  
+This list must be sorted in descending order of importance, starting with the holders owning the largest number of tokens and ending with those owning the smallest number of tokens.  
+  
+If the requested page exceeds the number of holders of the token, this endpoint must return an empty list of holders.
+
+#### Parameters(Query)
+
+```ts
+id: string
+```
+
+```ts
+page?: integer
+```
+
+```ts
+pageSize?: integer //default: 10
+```
+
+#### Responses
+
+- 200 OK
+
+`application/json`
+
+```ts
+// Response of the endpoint that return a list of holders of a token
+{
+  // List of token holders schema
+  asset: {
+    // Address of the token
+    id: string
+    // Total number of holders owning the requested token
+    totalHoldersCount: integer
+    // Holder of tokens schema
+    holders: {
+      // Address of the holder
+      address: string
+      // Number of tokens held by this address
+      quantity: integer
+    }[]
   }
 }
 ```
@@ -471,17 +553,48 @@ toBlock: integer
 // Token schema
 {
   // Address of the token
-  id: string
+  id?: string
   // Name of the token
-  name: string
+  name?: string
   // Symbol of the token
-  symbol: string
+  symbol?: string
   // Total supply of the token at current time
-  totalSupply: string
+  totalSupply?: string
   // Circulating supply of the token at current time
-  circulatingSupply: string
+  circulatingSupply?: string
   // Total number of holders of the token
   holdersCount?: integer
+}
+```
+
+### #/components/schemas/AssetHolders
+
+```ts
+// List of token holders schema
+{
+  // Address of the token
+  id: string
+  // Total number of holders owning the requested token
+  totalHoldersCount: integer
+  // Holder of tokens schema
+  holders: {
+    // Address of the holder
+    address: string
+    // Number of tokens held by this address
+    quantity: integer
+  }[]
+}
+```
+
+### #/components/schemas/AssetHolder
+
+```ts
+// Holder of tokens schema
+{
+  // Address of the holder
+  address: string
+  // Number of tokens held by this address
+  quantity: integer
 }
 ```
 
@@ -590,17 +703,39 @@ toBlock: integer
   // Token schema
   asset: {
     // Address of the token
-    id: string
+    id?: string
     // Name of the token
-    name: string
+    name?: string
     // Symbol of the token
-    symbol: string
+    symbol?: string
     // Total supply of the token at current time
-    totalSupply: string
+    totalSupply?: string
     // Circulating supply of the token at current time
-    circulatingSupply: string
+    circulatingSupply?: string
     // Total number of holders of the token
     holdersCount?: integer
+  }
+}
+```
+
+### #/components/schemas/ResponseOfAssetHolders
+
+```ts
+// Response of the endpoint that return a list of holders of a token
+{
+  // List of token holders schema
+  asset: {
+    // Address of the token
+    id: string
+    // Total number of holders owning the requested token
+    totalHoldersCount: integer
+    // Holder of tokens schema
+    holders: {
+      // Address of the holder
+      address: string
+      // Number of tokens held by this address
+      quantity: integer
+    }[]
   }
 }
 ```
