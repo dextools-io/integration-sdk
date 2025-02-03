@@ -718,7 +718,7 @@ components:
           example: lzvjb-wyaaa-aaaam-qarua-cai
         name:
           type: string
-          description: Name of the token
+          description: Name of the exchange
           example: Uniswap V99
         logoURL:
           type: string
