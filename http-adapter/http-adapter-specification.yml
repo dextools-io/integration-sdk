@@ -159,6 +159,87 @@ paths:
                   symbol: BOX
                   totalSupply: '1008423.949810'
                   circulatingSupply: '1008423.949810'
+                  holdersCount: 12235
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfError'
+              example:
+                - code: 400
+                  message: Missing parameter
+                  issues:
+                    - param: id
+                      code: required
+                      message: Id parameter is required
+        '404':
+          description: 'Not found'
+          $ref: '#/components/responses/ErrorNotFound'
+        '429':
+          description: 'Too may requests'
+          $ref: '#/components/responses/ErrorTooManyRequests'
+        '500':
+          description: 'Internal server error'
+          $ref: '#/components/responses/ErrorInternal'
+  /asset/holders:
+    get:
+      tags:
+        - core
+      summary: Paginated list of holders of a token by its id
+      description: |-
+        Returns a list of holders of a given token.
+
+        This list must be sorted in descending order of importance, starting with the holders owning the largest number of tokens and ending with those owning the smallest number of tokens.
+
+        If the requested page exceeds the number of holders of the token, this endpoint must return an empty list of holders.
+      parameters:
+        - name: id
+          in: query
+          description: Address of the target token
+          schema:
+            type: string
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+          required: true
+        - name: page
+          in: query
+          description: Number of page to return used in pagination. It's value must be 0 by default (first page)
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+          example: 2
+          required: false
+        - name: pageSize
+          in: query
+          description: Size of the page to return. It's value must be 10 by default
+          schema:
+            type: integer
+            format: int32
+            minimum: 10
+            maximum: 50
+            default: 10
+          example: 25
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseOfAssetHolders'
+              example:
+                asset:
+                  id: lzvjb-wyaaa-aaaam-qarua-cai
+                  totalHoldersCount: 125
+                  holders:
+                    - address: '0x000000000000084e91743124a982076c59f10084'
+                      quantity: 252234
+                    - address: '0x0000000000003f5e74c1ba8a66b48e6f3d71ae82'
+                      quantity: 12344
+                    - address: '0xaaaebe6fe48e54f431b0c390cfaf0b017d09d42d'
+                      quantity: 10
         '400':
           description: 'Bad request'
           content:
@@ -204,12 +285,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResponseOfExchange'
               example:
-                asset:
-                  id: lzvjb-wyaaa-aaaam-qarua-cai
+                exchange:
+                  factoryAddress: lzvjb-wyaaa-aaaam-qarua-cai
                   name: BOX DIP-20
-                  symbol: BOX
-                  totalSupply: '1008423.949810'
-                  circulatingSupply: '1008423.949810'
+                  logoURL: 'https://mydex.com/logo.png'
         '400':
           description: 'Bad request'
           content:
@@ -402,6 +481,7 @@ components:
   schemas:
     Block:
       type: object
+      description: Block schema
       properties:
         blockNumber:
           type: integer
@@ -420,6 +500,7 @@ components:
         - blockTimestamp
     Asset:
       type: object
+      description: Token schema
       properties:
         id:
           type: string
@@ -443,14 +524,55 @@ components:
           description: Circulating supply of the token at current time
           pattern: '^\d+(?:\.\d+)$'
           example: '1008423.949810'
+        holdersCount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Total number of holders of the token
+          example: 1008423
+    AssetHolders:
+      type: object
+      description: List of token holders schema
+      properties:
+        id:
+          type: string
+          description: Address of the token
+          example: lzvjb-wyaaa-aaaam-qarua-cai
+        totalHoldersCount:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Total number of holders owning the requested token
+          example: 255
+        holders:
+          type: array
+          description: List of holders owning the token, sorted in descending order of importance.
+          items:
+            $ref: '#/components/schemas/AssetHolder'
       required:
         - id
-        - name
-        - symbol
-        - totalSupply
-        - circulatingSupply
+        - totalHoldersCount
+        - holders
+    AssetHolder:
+      type: object
+      description: Holder of tokens schema
+      properties:
+        address:
+          type: string
+          description: Address of the holder
+          example: '0x000000000000084e91743124a982076c59f10084'
+        quantity:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Number of tokens held by this address
+          example: 1234122
+      required:
+        - address
+        - quantity
     Pair:
       type: object
+      description: Pair schema
       properties:
         id:
           type: string
@@ -494,6 +616,7 @@ components:
         - factoryAddress
     Event:
       type: object
+      description: Event schema
       properties:
         block:
           $ref: '#/components/schemas/Block'
@@ -587,6 +710,7 @@ components:
 
     Exchange:
       type: object
+      description: Exchange schema
       properties:
         factoryAddress:
           type: string
@@ -594,7 +718,7 @@ components:
           example: lzvjb-wyaaa-aaaam-qarua-cai
         name:
           type: string
-          description: Name of the token
+          description: Name of the exchange
           example: Uniswap V99
         logoURL:
           type: string
@@ -606,6 +730,7 @@ components:
 
     ResponseOfBlock:
       type: object
+      description: Response of the endpoints that return a single block
       properties:
         block:
           $ref: '#/components/schemas/Block'
@@ -613,20 +738,31 @@ components:
         - block
     ResponseOfAsset:
       type: object
+      description: Response of the endpoints that return a single token
       properties:
         asset:
           $ref: '#/components/schemas/Asset'
       required:
         - asset
+    ResponseOfAssetHolders:
+      type: object
+      description: Response of the endpoint that return a list of holders of a token
+      properties:
+        asset:
+          $ref: '#/components/schemas/AssetHolders'
+      required:
+        - asset
     ResponseOfExchange:
       type: object
+      description: Response of the endpoints that return a single exchange
       properties:
         exchange:
           $ref: '#/components/schemas/Exchange'
       required:
-        - asset        
+        - exchange        
     ResponseOfPair:
       type: object
+      description: Response of the endpoints that return a single pair
       properties:
         pair:
           $ref: '#/components/schemas/Pair'
@@ -634,6 +770,7 @@ components:
         - pair
     ResponseOfEvents:
       type: object
+      description: Response of the /events endpoint
       properties:
         events:
           type: array
@@ -644,6 +781,7 @@ components:
 
     Issue:
       type: object
+      description: Schema of error details
       properties:
         code:
           type: string
@@ -656,6 +794,7 @@ components:
 
     ResponseOfError:
       type: object
+      description: Schema of all error responses
       properties:
         code:
           type: string

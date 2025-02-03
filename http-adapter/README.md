@@ -19,6 +19,7 @@ DEXTools will consume the API requesting each block as fast as possible and quer
 | GET | [/latest-block](#getlatest-block) | Latest block |
 | GET | [/block](#getblock) | Block by number or timestamp |
 | GET | [/asset](#getasset) | Token by id |
+| GET | [/asset/holders](#getassetholders) | Paginated list of holders of a token by its id |
 | GET | [/exchange](#getexchange) | DEX info by factory address or id |
 | GET | [/pair](#getpair) | Pair by id |
 | GET | [/events](#getevents) | Events |
@@ -27,18 +28,21 @@ DEXTools will consume the API requesting each block as fast as possible and quer
 
 | Name | Path | Description |
 | --- | --- | --- |
-| Block | [#/components/schemas/Block](#componentsschemasblock) |  |
-| Asset | [#/components/schemas/Asset](#componentsschemasasset) |  |
-| Pair | [#/components/schemas/Pair](#componentsschemaspair) |  |
-| Event | [#/components/schemas/Event](#componentsschemasevent) |  |
-| Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) |  |
-| ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) |  |
-| ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) |  |
-| ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) |  |
-| ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) |  |
-| ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) |  |
-| Issue | [#/components/schemas/Issue](#componentsschemasissue) |  |
-| ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) |  |
+| Block | [#/components/schemas/Block](#componentsschemasblock) | Block schema |
+| Asset | [#/components/schemas/Asset](#componentsschemasasset) | Token schema |
+| AssetHolders | [#/components/schemas/AssetHolders](#componentsschemasassetholders) | List of token holders schema |
+| AssetHolder | [#/components/schemas/AssetHolder](#componentsschemasassetholder) | Holder of tokens schema |
+| Pair | [#/components/schemas/Pair](#componentsschemaspair) | Pair schema |
+| Event | [#/components/schemas/Event](#componentsschemasevent) | Event schema |
+| Exchange | [#/components/schemas/Exchange](#componentsschemasexchange) | Exchange schema |
+| ResponseOfBlock | [#/components/schemas/ResponseOfBlock](#componentsschemasresponseofblock) | Response of the endpoints that return a single block |
+| ResponseOfAsset | [#/components/schemas/ResponseOfAsset](#componentsschemasresponseofasset) | Response of the endpoints that return a single token |
+| ResponseOfAssetHolders | [#/components/schemas/ResponseOfAssetHolders](#componentsschemasresponseofassetholders) | Response of the endpoint that return a list of holders of a token |
+| ResponseOfExchange | [#/components/schemas/ResponseOfExchange](#componentsschemasresponseofexchange) | Response of the endpoints that return a single exchange |
+| ResponseOfPair | [#/components/schemas/ResponseOfPair](#componentsschemasresponseofpair) | Response of the endpoints that return a single pair |
+| ResponseOfEvents | [#/components/schemas/ResponseOfEvents](#componentsschemasresponseofevents) | Response of the /events endpoint |
+| Issue | [#/components/schemas/Issue](#componentsschemasissue) | Schema of error details |
+| ResponseOfError | [#/components/schemas/ResponseOfError](#componentsschemasresponseoferror) | Schema of all error responses |
 | ErrorNotFound | [#/components/responses/ErrorNotFound](#componentsresponseserrornotfound) | Not Found |
 | ErrorTooManyRequests | [#/components/responses/ErrorTooManyRequests](#componentsresponseserrortoomanyrequests) | Too Many requests |
 | ErrorInternal | [#/components/responses/ErrorInternal](#componentsresponseserrorinternal) | Internal error |
@@ -68,7 +72,9 @@ platform.
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -119,7 +125,9 @@ timestamp?: integer
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -134,9 +142,11 @@ timestamp?: integer
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -174,18 +184,22 @@ id: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single token
 {
+  // Token schema
   asset: {
     // Address of the token
-    id: string
+    id?: string
     // Name of the token
-    name: string
+    name?: string
     // Symbol of the token
-    symbol: string
+    symbol?: string
     // Total supply of the token at current time
-    totalSupply: string
+    totalSupply?: string
     // Circulating supply of the token at current time
-    circulatingSupply: string
+    circulatingSupply?: string
+    // Total number of holders of the token
+    holdersCount?: integer
   }
 }
 ```
@@ -195,9 +209,89 @@ id: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
+  issues: {
+    code?: string
+    param?: string
+    message: string
+  }[]
+}
+```
+
+- 404 Not found
+
+- 429 Too may requests
+
+- 500 Internal server error
+
+***
+
+### [GET]/asset/holders
+
+- Summary  
+Paginated list of holders of a token by its id
+
+- Description  
+Returns a list of holders of a given token.  
+  
+This list must be sorted in descending order of importance, starting with the holders owning the largest number of tokens and ending with those owning the smallest number of tokens.  
+  
+If the requested page exceeds the number of holders of the token, this endpoint must return an empty list of holders.
+
+#### Parameters(Query)
+
+```ts
+id: string
+```
+
+```ts
+page?: integer
+```
+
+```ts
+pageSize?: integer //default: 10
+```
+
+#### Responses
+
+- 200 OK
+
+`application/json`
+
+```ts
+// Response of the endpoint that return a list of holders of a token
+{
+  // List of token holders schema
+  asset: {
+    // Address of the token
+    id: string
+    // Total number of holders owning the requested token
+    totalHoldersCount: integer
+    // Holder of tokens schema
+    holders: {
+      // Address of the holder
+      address: string
+      // Number of tokens held by this address
+      quantity: integer
+    }[]
+  }
+}
+```
+
+- 400 Bad request
+
+`application/json`
+
+```ts
+// Schema of all error responses
+{
+  code: string
+  message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -235,7 +329,9 @@ id: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single exchange
 {
+  // Exchange schema
   exchange: {
     // Address of the factory contract
     factoryAddress: string
@@ -252,9 +348,11 @@ id: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -292,7 +390,9 @@ id?: string
 `application/json`
 
 ```ts
+// Response of the endpoints that return a single pair
 {
+  // Pair schema
   pair: {
     // Address of the pair
     id: string
@@ -317,9 +417,11 @@ id?: string
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -361,8 +463,11 @@ toBlock: integer
 `application/json`
 
 ```ts
+// Response of the /events endpoint
 {
+  // Event schema
   events: {
+    // Block schema
     block: {
       // Number of the block
       blockNumber: integer
@@ -409,9 +514,11 @@ toBlock: integer
 `application/json`
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -431,6 +538,7 @@ toBlock: integer
 ### #/components/schemas/Block
 
 ```ts
+// Block schema
 {
   // Number of the block
   blockNumber: integer
@@ -442,23 +550,58 @@ toBlock: integer
 ### #/components/schemas/Asset
 
 ```ts
+// Token schema
+{
+  // Address of the token
+  id?: string
+  // Name of the token
+  name?: string
+  // Symbol of the token
+  symbol?: string
+  // Total supply of the token at current time
+  totalSupply?: string
+  // Circulating supply of the token at current time
+  circulatingSupply?: string
+  // Total number of holders of the token
+  holdersCount?: integer
+}
+```
+
+### #/components/schemas/AssetHolders
+
+```ts
+// List of token holders schema
 {
   // Address of the token
   id: string
-  // Name of the token
-  name: string
-  // Symbol of the token
-  symbol: string
-  // Total supply of the token at current time
-  totalSupply: string
-  // Circulating supply of the token at current time
-  circulatingSupply: string
+  // Total number of holders owning the requested token
+  totalHoldersCount: integer
+  // Holder of tokens schema
+  holders: {
+    // Address of the holder
+    address: string
+    // Number of tokens held by this address
+    quantity: integer
+  }[]
+}
+```
+
+### #/components/schemas/AssetHolder
+
+```ts
+// Holder of tokens schema
+{
+  // Address of the holder
+  address: string
+  // Number of tokens held by this address
+  quantity: integer
 }
 ```
 
 ### #/components/schemas/Pair
 
 ```ts
+// Pair schema
 {
   // Address of the pair
   id: string
@@ -480,7 +623,9 @@ toBlock: integer
 ### #/components/schemas/Event
 
 ```ts
+// Event schema
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -524,6 +669,7 @@ toBlock: integer
 ### #/components/schemas/Exchange
 
 ```ts
+// Exchange schema
 {
   // Address of the factory contract
   factoryAddress: string
@@ -537,7 +683,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfBlock
 
 ```ts
+// Response of the endpoints that return a single block
 {
+  // Block schema
   block: {
     // Number of the block
     blockNumber: integer
@@ -550,18 +698,44 @@ toBlock: integer
 ### #/components/schemas/ResponseOfAsset
 
 ```ts
+// Response of the endpoints that return a single token
 {
+  // Token schema
+  asset: {
+    // Address of the token
+    id?: string
+    // Name of the token
+    name?: string
+    // Symbol of the token
+    symbol?: string
+    // Total supply of the token at current time
+    totalSupply?: string
+    // Circulating supply of the token at current time
+    circulatingSupply?: string
+    // Total number of holders of the token
+    holdersCount?: integer
+  }
+}
+```
+
+### #/components/schemas/ResponseOfAssetHolders
+
+```ts
+// Response of the endpoint that return a list of holders of a token
+{
+  // List of token holders schema
   asset: {
     // Address of the token
     id: string
-    // Name of the token
-    name: string
-    // Symbol of the token
-    symbol: string
-    // Total supply of the token at current time
-    totalSupply: string
-    // Circulating supply of the token at current time
-    circulatingSupply: string
+    // Total number of holders owning the requested token
+    totalHoldersCount: integer
+    // Holder of tokens schema
+    holders: {
+      // Address of the holder
+      address: string
+      // Number of tokens held by this address
+      quantity: integer
+    }[]
   }
 }
 ```
@@ -569,7 +743,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfExchange
 
 ```ts
+// Response of the endpoints that return a single exchange
 {
+  // Exchange schema
   exchange: {
     // Address of the factory contract
     factoryAddress: string
@@ -584,7 +760,9 @@ toBlock: integer
 ### #/components/schemas/ResponseOfPair
 
 ```ts
+// Response of the endpoints that return a single pair
 {
+  // Pair schema
   pair: {
     // Address of the pair
     id: string
@@ -607,8 +785,11 @@ toBlock: integer
 ### #/components/schemas/ResponseOfEvents
 
 ```ts
+// Response of the /events endpoint
 {
+  // Event schema
   events: {
+    // Block schema
     block: {
       // Number of the block
       blockNumber: integer
@@ -653,6 +834,7 @@ toBlock: integer
 ### #/components/schemas/Issue
 
 ```ts
+// Schema of error details
 {
   code?: string
   param?: string
@@ -663,9 +845,11 @@ toBlock: integer
 ### #/components/schemas/ResponseOfError
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -679,9 +863,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -695,9 +881,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
@@ -711,9 +899,11 @@ toBlock: integer
 - application/json
 
 ```ts
+// Schema of all error responses
 {
   code: string
   message: string
+  // Schema of error details
   issues: {
     code?: string
     param?: string
