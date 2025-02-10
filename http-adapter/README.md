@@ -335,7 +335,7 @@ id: string
   exchange: {
     // Address of the factory contract
     factoryAddress: string
-    // Name of the token
+    // Name of the exchange
     name: string
     // URL of exchange Logo
     logoURL?: string
@@ -673,7 +673,7 @@ toBlock: integer
 {
   // Address of the factory contract
   factoryAddress: string
-  // Name of the token
+  // Name of the exchange
   name: string
   // URL of exchange Logo
   logoURL?: string
@@ -749,7 +749,7 @@ toBlock: integer
   exchange: {
     // Address of the factory contract
     factoryAddress: string
-    // Name of the token
+    // Name of the exchange
     name: string
     // URL of exchange Logo
     logoURL?: string
